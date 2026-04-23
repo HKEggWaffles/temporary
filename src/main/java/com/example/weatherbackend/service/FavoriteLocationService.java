@@ -1,0 +1,72 @@
+package com.example.weatherbackend.service;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.example.weatherbackend.dto.FavoriteLocationRequester;
+import com.example.weatherbackend.exception.DuplicatedException;
+import com.example.weatherbackend.exception.RNFException;
+import com.example.weatherbackend.models.FavoriteLocation;
+import com.example.weatherbackend.repos.FavoriteLocationRepository;
+
+@Service
+public class FavoriteLocationService {
+
+    private final FavoriteLocationRepository fLR;
+
+    public FavoriteLocationService(FavoriteLocationRepository favoriteLocationRepository) {
+        this.fLR = favoriteLocationRepository;
+    }
+
+    public List<FavoriteLocation> getAllFavorites() {
+        return (List<FavoriteLocation>) fLR.findAll();
+    }
+
+    public FavoriteLocation addFavorite(FavoriteLocationRequester request) {
+        String city = request.city().trim();
+        String country = request.country().trim();
+        Double lat = request.lat();
+        Double lon = request.lon();
+
+        boolean exists = fLR.existsByCityIgnoreCaseAndCountryIgnoreCaseAndLatAndLon(
+                city,
+                country,
+                lat,
+                lon
+        );
+
+        if (exists) {
+            throw new DuplicatedException(
+                    "FavoriteLocation",
+                    "city/country/lat/lon",
+                    city + ", " + country + ", " + lat + ", " + lon
+            );
+        }
+
+        FavoriteLocation favorite = new FavoriteLocation();
+        favorite.setCity(city);
+        favorite.setCountry(country);
+        favorite.setLat(lat);
+        favorite.setLon(lon);
+
+        return fLR.save(favorite);
+    }
+
+    public Optional<FavoriteLocation> findByID(Long id) {
+        if (!fLR.existsById(id)) {
+            throw new RNFException("FavoriteLocation", "id", id);
+        }
+
+        return fLR.findById(id);
+    }
+
+    public void deleteFavorite(Long id) {
+        if (!fLR.existsById(id)) {
+            throw new RNFException("FavoriteLocation", "id", id);
+        }
+
+        fLR.deleteById(id);
+    }
+}

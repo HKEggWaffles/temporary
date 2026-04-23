@@ -1,8 +1,11 @@
 package com.example.weatherbackend.controllers;
 
+import com.example.weatherbackend.dto.FavoriteLocationRequester;
+
 import com.example.weatherbackend.models.FavoriteLocation;
-import com.example.weatherbackend.repos.FavoriteLocationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.weatherbackend.service.FavoriteLocationService;
+
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,23 +17,26 @@ import org.springframework.web.bind.annotation.*;
 })
 public class FavoriteLocationController {
 
-    @Autowired
-    private FavoriteLocationRepository favoriteLocationRepository;
+    private final FavoriteLocationService favoriteLocationService;
+
+    public FavoriteLocationController(FavoriteLocationService favoriteLocationService) {
+        this.favoriteLocationService = favoriteLocationService;
+    }
 
     @GetMapping
     public Iterable<FavoriteLocation> getAllFavorites() {
-        return favoriteLocationRepository.findAll();
+        return favoriteLocationService.getAllFavorites();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public FavoriteLocation addFavorite(@RequestBody FavoriteLocation favoriteLocation) {
-        return favoriteLocationRepository.save(favoriteLocation);
+    public FavoriteLocation addFavorite(@Valid @RequestBody FavoriteLocationRequester request) {
+        return favoriteLocationService.addFavorite(request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFavorite(@PathVariable Long id) {
-        favoriteLocationRepository.deleteById(id);
+        favoriteLocationService.deleteFavorite(id);
     }
 }
