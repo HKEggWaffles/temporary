@@ -1,8 +1,9 @@
 package com.example.weatherbackend.controllers;
 
-import com.example.weatherbackend.dto.locationReqest;
+import com.example.weatherbackend.dto.FavLocationRequest;
+
 import com.example.weatherbackend.models.FavoriteLocation;
-import com.example.weatherbackend.services.logic;
+import com.example.weatherbackend.service.FavoriteLocationService;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
